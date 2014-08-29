@@ -1,7 +1,7 @@
 setwd("C:/Users/Courtney/Dropbox/Impute eqtl")
 
-#Pull all SNPs in .7 or higher LD with rs 2523393 in excel
-seventy = read.table('rs2523393.7LD.txt', header=T, as.is=T)
+#Pull all SNPs in .7 or higher LD with rs 2071473 in excel
+seventy = read.table('rs2071473.7LD.txt', header=T, as.is=T)
 map = read.table('imputedEVEmap.txt', header=T, as.is=T)
 seventyloc = merge(seventy, map, by.x = "BP_B", by.y = "pos", all.x=T, all.y=F)
 
@@ -45,23 +45,23 @@ row.names(eqtlgeno) <- NULL
 totalmap = rbind(impmap, eqtlmap)
 
 #I'm not sure how to sort columns so sort columns and merge genotypes in excel
-write.table(impdose, 'imputeddose_HLAF.7.txt', quote=F, sep='\t')
-write.table(eqtlgeno, 'QCgeno_HLAF.7.txt', quote=F, sep='\t')
+write.table(impdose, 'imputeddose_TAP2.7.txt', quote=F, sep='\t')
+write.table(eqtlgeno, 'QCgeno_TAP2.7.txt', quote=F, sep='\t')
 
-write.table(totalmap, 'QCgeno+impdose_HLAF.7_map.txt', quote=F, sep='\t')
+write.table(totalmap, 'QCgeno+impdose_TAP2.7_map.txt', quote=F, sep='\t')
 
 #####eQTL Mapping####
 library("MatrixEQTL")
 useModel = modelLINEAR
 #Example All Genotypes
-SNP_file_name = "QCgeno+impdose_HLAF.7.txt" 
+SNP_file_name = "QCgeno+impdose_TAP2.7.txt" 
 expression_file_name = "HLARegion_FinalGeneExpr.txt"
 
 #In case of no covariates set the variable covariates_file_name to character() in R ([] in Matlab).
 
 covariates_file_name = character() 
-output_file_name = "eQTL_results_HLAF_imputedandgeno_trans.txt"
-output_file_name.cis = "eQTL_results_HLAF_imputedandgeno_cis.txt"
+output_file_name = "eQTL_results_TAP2_imputedandgeno_trans.txt"
+output_file_name.cis = "eQTL_results_TAP2_imputedandgeno_cis.txt"
 
 ##Next, choose the p-value threshold. Only associations significant at this level will be saved in the output file. Note that for larger datasets the threshold should be lower. Setting the threshold to a high value for a large dataset may cause excessively large output (many gigabytes).
 
@@ -115,7 +115,7 @@ cvrt$fileSliceSize = snps$nCols()+1
 if(length(covariates_file_name)>0) {
   cvrt$LoadFile(covariates_file_name)
 }
-snpspos = read.table('QCgeno+impdose_HLAF.7_map.txt', header = TRUE, stringsAsFactors = FALSE);
+snpspos = read.table('QCgeno+impdose_TAP2.7_map.txt', header = TRUE, stringsAsFactors = FALSE);
 genepos = read.table('HLARegion_genelocmap.txt', header = TRUE, stringsAsFactors = FALSE);
 
 
@@ -138,14 +138,14 @@ me = Matrix_eQTL_main(snps,
 #####Merging with TTP results####
 #First add location to results
 setwd("C:/Users/Courtney/Dropbox/Impute eqtl")
-eqtl = read.table('eQTL_results_HLAF_imputedandgeno_cis.txt', as.is=T, header=T)
-totalmap = read.table('QCgeno+impdose_HLAF.7_map.txt', header=T, as.is=T)
+eqtl = read.table('eQTL_results_TAP2_imputedandgeno_cis.txt', as.is=T, header=T)
+totalmap = read.table('QCgeno+impdose_TAP2.7_map.txt', header=T, as.is=T)
 colnames(totalmap) = c("Marker", "chr_snp", "pos") 
 eqtl_wloc = merge(eqtl,totalmap, by.x = "SNP", by.y = "Marker", all.x=T, all.y = F)
 
 #Merge with TTP results
 setwd("C:/Users/Courtney/Dropbox/Ober Lab/Fertility/Final Paper eQTL Analysis/HutteriteTTP")
-ttphlaf = read.table('HLA-F_0.5MbRegion_forR.txt', as.is=T, header=T)
-supt4 = merge(ttphlaf, eqtl_wloc, by.x = "stopBP", by.y = "pos", all.x=T, all.y=T)
+ttptap2 = read.table('TAP2_0.5MbRegion_forR.txt', as.is=T, header=T)
+supt5 = merge(ttptap2, eqtl_wloc, by.x = "stopBP", by.y = "pos", all.x=T, all.y=T)
 
-write.table(supt4, 'TTP+eqtlwgeno+imp.txt', quote=F, sep='\t')
+write.table(supt5, 'TAP2_TTP+eqtlwgeno+imp.txt', quote=F, sep='\t')
