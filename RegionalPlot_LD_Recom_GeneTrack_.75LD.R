@@ -98,9 +98,9 @@ manhattan3 <- function(x, chr="CHR", bp="BP", p="P", snp="SNP", r2 = "R2.with.rs
   }
   
   # Initialize plot
-  xmax =29750000  
-  xmin = 29650000
-  ymin = -2
+  xmax =29735000  
+  xmin = 29670000
+  ymin = -3.7
   plot(NULL, xaxt='n', bty='n', xaxs='i', yaxs='i', xlim=c(xmin,xmax), ylim=c(ymin,ymax),
        xlab=xlabel, ylab=expression(-log[10](italic(p))), las=1, pch=20, ...)
   
@@ -113,7 +113,7 @@ manhattan3 <- function(x, chr="CHR", bp="BP", p="P", snp="SNP", r2 = "R2.with.rs
   
   
   # Add suggestive and genomewide lines
-  if (suggestiveline) abline(h=suggestiveline, col="black")
+  #if (suggestiveline) abline(h=suggestiveline, col="black")
   if (genomewideline) {
     d.highlight.snp=d[which(d$SNP == 'rs2523393_f_G'), ]
     d.highlight.snp1=d[which(d$R2>.7), ]
@@ -138,8 +138,8 @@ manhattan3 <- function(x, chr="CHR", bp="BP", p="P", snp="SNP", r2 = "R2.with.rs
 manhattan3(hla)
 genelist <- read.table(paste("known_genes_buildhg19_chr6_strand.txt"), header=T)
 genes <- subset(genelist, ( genelist$START > 29456000 & genelist$START < 29954600 ) | ( genelist$STOP > 29456000 & genelist$STOP < 29954600) )
-xmax =29750000  
-xmin = 29650000
+xmax =29735000  
+xmin = 29670000
 ##Remove duplicate genes (picked longest)
 rem=c(1,4,8)
 genes.in.locus = genes[-rem,]
@@ -147,11 +147,8 @@ genes.in.locus = genes[-rem,]
 range = 5
 offset <- ( range * 4 / 3 ) - range
 big.range <- range + offset 
-#range = 2.5
-#offset <- ( range * 4 / 3 ) - range
-#big.range <- range + offset 
+
 for ( i in 1:4 ) { 
-#for ( i in 1:nrow(genes.in.locus) ) { 
   if ( genes.in.locus[i,]$STRAND == "+" ) {
     arrows(max(genes.in.locus[i,]$START), -offset, min(genes.in.locus[i,]$STOP), -offset, length=0.10, lwd=2, code=2, lty="solid", col="darkgreen")
     } else {		
@@ -165,14 +162,12 @@ for ( i in 1:4 ) {
 
 
 abline(h=0, col="black", lty=2)
-abline(h=-2, col="black", lty=1)
+abline(h=-3.7, col="black", lty=1)
 abline(v=xmax, col="black")
-range = 5
-offset <- ( range * 4 / 3 ) - range
-big.range <- range + offset 
+abline(v=xmin, col="black")
 chr=6
-max.pos = 29750000 
-min.pos = 29650000
+max.pos = 29735000  
+min.pos = 29670000
 recomb <- read.table(paste("genetic_map_chr", chr, ".txt", sep=""), header=T)
 keep.recomb <- subset(recomb, recomb[,1] > min.pos & recomb[,1] < max.pos)
 ystart.recomb <- - offset + (big.range / 8)
@@ -182,15 +177,38 @@ mtext("Recombination rate (cM/Mb)", side=4, at=(-offset+big.range/2), line=2)
 
 
 #Add in functional tracks 
+setwd("C:/Users/Courtney/Dropbox/Ober Lab/Fertility/Final Paper eQTL Analysis/HutteriteTTP")
 fairelist <- read.table("FAIRE_region.txt", header=T)
 faire <- subset(fairelist, ( fairelist$Start > xmin & fairelist$Start < xmax ))
-
-range = 5
-offset <- ( range * 4 / 3 ) - range
-big.range <- range + offset 
-#range = 2.5
-#offset <- ( range * 4 / 3 ) - range
-#big.range <- range + offset 
-for ( i in 1:length(faire) ) { 
-  segments(faire[i,]$Start, -1.1, faire[i,]$Stop, -1.1, col="red", lty = 1, lwd =5)
+for ( i in 1:dim(faire)[1] ) { 
+  segments(faire[i,]$Start, -2.2, faire[i,]$Stop, -2.2, col="red", lty = 1, lwd =5)
 }
+text(29730000, -2.2, labels="FAIRE", cex= .8, col = "red")
+
+dnalist <- read.table("DNase1_region.txt", header=T)
+dna <- subset(dnalist, ( dnalist$Start > xmin & dnalist$Start < xmax ))
+for ( i in 1:dim(dna)[1] ) { 
+  segments(dna[i,]$Start, -2.7, dna[i,]$Stop, -2.7, col="blue", lty = 1, lwd =5)
+}
+text(29730000, -2.7, labels="DNaseI", cex= .8, col = "blue")
+
+hklist <- read.table("H3K4me3_region.txt", header=T)
+hk <- subset(hklist, ( hklist$Start > xmin & hklist$Start < xmax ))
+for ( i in 1:dim(hk)[1] ) { 
+  segments(hk[i,]$Start, -3.2, hk[i,]$Stop, -3.2, col="black", lty = 1, lwd =5)
+}
+text(29730000, -3.2, labels="H3K4me3", cex= .8, col = "black")
+
+#Make a legend for the LD
+layout(matrix(1:2,ncol=2), width = c(2,1),height = c(1,1))
+plot(1:2, 1:2, pch = 19, cex=2, col = c("#0F0F0F4D" ,"black") )
+
+legend_image <- as.raster(matrix(c("black","#0F0F0F4D" ), ncol=1))
+plot(c(0,2),c(0,1),type = 'n', axes = F,xlab = '', ylab = '', main = 'legend title')
+text(x=1.5, y = seq(.5,1,l=5), labels = seq(.7,1,l=5))
+rasterImage(legend_image, 0, .5, 1,1)
+
+legend_image2 <- as.raster(matrix(c("skyblue" ), ncol=1))
+text(x=1.5, y = seq(-.3,0,l=1), labels = seq(0,l=1))
+text(x=1.5, y = .35, labels = "<0.7")
+rasterImage(legend_image2, 0, .3, 1,.5)
