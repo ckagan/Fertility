@@ -1,7 +1,10 @@
-tap2 = read.table('TAP2_0.5MbRegion_eQTL_forR_.70LD.txt', as.is=TRUE, header=TRUE)
-manhattan4 <- function(x, chr="CHR", bp="BP", p="P", snp="SNP", r2 = "R2.with.rs2071473",fdr = "FDR", 
+setwd("C:/Users/Courtney/Dropbox/Ober Lab/Fertility/Final Paper eQTL Analysis/Regional Plot")
+
+tap2 = read.table('TAP2_0.5MbRegion_eQTL_forR.txt', as.is=TRUE, header=TRUE)
+gscale = gray(((1-tap2[which(tap2$R2.with.rs2071473 > .7),9 ])/5), alpha=.3)
+manhattan <- function(x, chr="CHR", bp="BP", p="P", snp="SNP", r2 = "R2.with.rs2071473", 
                        col=c("gray10", "gray60"), ymax=NULL, 
-                       suggestiveline=-log10(1e-3), genomewideline=-log10(5e-8), 
+                       suggestiveline=-log10(1e-3), genomewideline=-log10(1e-3), 
                        highlight=NULL, logp=TRUE, ...) {
   
   # Not sure why, but package check will warn without this.
@@ -20,7 +23,7 @@ manhattan4 <- function(x, chr="CHR", bp="BP", p="P", snp="SNP", r2 = "R2.with.rs
   if (!is.numeric(x[[p]])) stop(paste(p, "column should be numeric."))
   
   # Create a new data.frame with columns called CHR, BP, and P.
-  d=data.frame(CHR=x[[chr]], BP=x[[bp]], P=x[[p]], R2=x[[r2]], FDR=x[[fdr]])
+  d=data.frame(CHR=x[[chr]], BP=x[[bp]], P=x[[p]], R2=x[[r2]])
   
   # If the input data frame has a SNP column, add it to the new data frame you're creating.
   if (!is.null(x[[snp]])) d=transform(d, SNP=x[[snp]])
@@ -94,9 +97,9 @@ manhattan4 <- function(x, chr="CHR", bp="BP", p="P", snp="SNP", r2 = "R2.with.rs
   }
   
   # Initialize plot
-  xmax = 33032600
-  xmin = 32534300
-  ymin = -2
+  xmax = 32807000
+  xmin = 32740000
+  ymin = -3.7
   plot(NULL, xaxt='n', bty='n', xaxs='i', yaxs='i', xlim=c(xmin,xmax), ylim=c(ymin,ymax),
        xlab=xlabel, ylab=expression(-log[10](italic(p))), las=1, pch=20, ...)
   
@@ -107,38 +110,17 @@ manhattan4 <- function(x, chr="CHR", bp="BP", p="P", snp="SNP", r2 = "R2.with.rs
     axis(1, at=ticks, labels=labs, ...)
   }
   
-  # Create a vector of alternatiting colors
-  col=rep(col, max(d$CHR))
-  
-  # Add points to the plot
-  if (nchr==1) {
-    with(d, points(pos, logp, pch=20, ...))
-  } else {
-    # if multiple chromosomes, need to alternate colors and increase the color index (icol) each chr.
-    icol=1
-    for (i in unique(d$index)) {
-      with(d[d$index==unique(d$index)[i], ], points(pos, logp, col=col[icol], pch=20, ...))
-      icol=icol+1
-    }
-  }
   
   # Add suggestive and genomewide lines
-  if (suggestiveline) abline(h=suggestiveline, col="black")
+  #if (suggestiveline) abline(h=suggestiveline, col="black")
   if (genomewideline) {
-    d.highlight2=d[which(d$R2<1 & d$R2>.8), ]
-    d.highlight3=d[which(d$R2<.8 & d$R2>.6), ]
-    d.highlight4=d[which(d$R2<.6 & d$R2>.4), ]
-    d.highlight5=d[which(d$R2<.4 & d$R2>.2), ]
-    d.highlight6=d[which(d$R2<.2), ]
-    d.highlight1=d[which(d$R2==1), ]
-    d.highlight = d[which(d$SNP == "rs2071473_r_T"),]
-    with(d.highlight6, points(pos, logp, col="#F2F2F2", pch=20, ...))
-    with(d.highlight5, points(pos, logp, col="#C1C1C1", pch=20, ...))
-    with(d.highlight4, points(pos, logp, col="#919191", pch=20, ...))
-    with(d.highlight3, points(pos, logp, col="#606060", pch=20, cex = 1.25,...))
-    with(d.highlight2, points(pos, logp, col="#303030", pch=20, cex=1.5,...))
-    with(d.highlight1, points(pos, logp, col="#000000", pch=20, cex = 1.5,...))
-    with(d.highlight, points(pos, logp, col="#000000", pch=18, cex = 2, ...))
+    d.highlight.snp=d[which(d$SNP == 'rs2071473_r_T'), ]
+    d.highlight.snp1=d[which(d$R2>.7), ]
+    d.highlight.snp2=d[which(d$R2<.7), ]
+    with(d.highlight.snp2, points(pos, logp, col="skyblue", pch=16,cex=1, ...))
+    with(d.highlight.snp1, points(pos, logp, col=gscale, pch=16,cex=1.5, ...)) 
+    with(d.highlight.snp, points(pos, logp, col="red", pch=18,cex=4, ...)) 
+    
   }
   
   # Highlight snps from a character vector
@@ -152,79 +134,81 @@ manhattan4 <- function(x, chr="CHR", bp="BP", p="P", snp="SNP", r2 = "R2.with.rs
   }
   
 }
-manhattan4(tap2)
-max.pos = 33032600
-min.pos = 32534300
-genelist <- read.table("known_genes_buildhg19_chr6_strand.txt", header=T)
-genes <- subset(genelist, ( genelist$START > min.pos & genelist$START < max.pos ) | ( genelist$STOP > min.pos & genelist$STOP < max.pos) )
+manhattan(tap2)
+genelist <- read.table(paste("known_genes_buildhg19_chr6_strand.txt"), header=T)
+xmax = 32807000
+xmin = 32740000
+genes <- subset(genelist, ( genelist$STOP > xmin & genelist$START < xmax ) )
 
 ##Remove duplicate genes (picked longest)
-rem=c(1,2,13,16,18,19)
-all.genes.in.locus = genes[-rem,]
-#only expressed genes
-notexpr = c(4,6,7,8,9,10,12)
-genes.in.locus = all.genes.in.locus[-notexpr,]
+rem=c(2,4)
+genes.in.locus = genes[-rem,]
 
 range = 5
 offset <- ( range * 4 / 3 ) - range
 big.range <- range + offset 
-#Expressed genes green
-for ( i in c(3,7)) { 
+
+for ( i in 1:2 ) { 
   if ( genes.in.locus[i,]$STRAND == "+" ) {
-    arrows(max(genes.in.locus[i,]$START, min.pos), -1.8, min(genes.in.locus[i,]$STOP, max.pos), -1.8, length=0.05, lwd=2, code=2, lty="solid", col="darkgreen")
-  } else {    
-    arrows(max(genes.in.locus[i,]$START, min.pos), -1.8, min(genes.in.locus[i,]$STOP, max.pos), -1.8, length=0.05, lwd=2, code=1, lty="solid", col="darkgreen")
+    arrows(max(genes.in.locus[i,]$START), -offset, min(genes.in.locus[i,]$STOP), -offset, length=0.10, lwd=2, code=2, lty="solid", col="darkgreen")
+  } else {  	
+    arrows(max(genes.in.locus[i,]$START), -offset, min(genes.in.locus[i,]$STOP), -offset, length=0.10, lwd=2, code=1, lty="solid", col="darkgreen")
   }
   if ( ! is.na(genes.in.locus[i,]$GENE) ) {
-    if ( genes.in.locus[i,]$STRAND == "+" ) {
-      text(genes.in.locus[i,]$START + (genes.in.locus[i,]$SIZE / 2), -1.8 + (.3), labels=genes.in.locus[i,]$GENE, cex=0.8)
-    } else {    
-      text(genes.in.locus[i,]$START + (genes.in.locus[i,]$SIZE / 2), -1.8 + (.3), labels=genes.in.locus[i,]$GENE, cex=0.8)
-    }}
-  
-}
-##To shift BRD2 over
-for ( i in 1) { 
-  
-  arrows(max(genes.in.locus[i,]$START, min.pos), -1.8, min(genes.in.locus[i,]$STOP, max.pos), -1.8, length=0.05, lwd=2, code=1, lty="solid", col="darkgreen")
-  
-  if ( ! is.na(genes.in.locus[i,]$GENE) ) {
-    
-    text((genes.in.locus[i,]$START+13000) + (genes.in.locus[i,]$SIZE / 2), -1.8 + (.30), labels=genes.in.locus[i,]$GENE, cex=0.8)
+    text(genes.in.locus[i,]$START + (genes.in.locus[i,]$SIZE / 2), -offset + ( big.range / 20 ), labels=genes.in.locus[i,]$GENE, cex=0.8)
   }
-  
 }
 
-for ( i in 4) { 
-  
-  arrows(max(genes.in.locus[i,]$START, min.pos), -1.3, min(genes.in.locus[i,]$STOP, max.pos), -1.3, length=0.05, lwd=2, code=1, lty="solid", col="darkgreen")
-  
-  if ( ! is.na(genes.in.locus[i,]$GENE) ) {
-    
-    text((genes.in.locus[i,]$START-13000) + (genes.in.locus[i,]$SIZE / 2), -1, labels=genes.in.locus[i,]$GENE, cex=0.8)
-  }
-  
-}
-
-
-for ( i in c(2,6,8 )) { 
-  arrows(max(genes.in.locus[i,]$START, min.pos), -1.3, min(genes.in.locus[i,]$STOP, max.pos), -1.3, length=0.05, lwd=2, code=1, lty="solid", col="darkgreen")
-  
-  if ( ! is.na(genes.in.locus[i,]$GENE) ) {
-    
-    text(genes.in.locus[i,]$START + (genes.in.locus[i,]$SIZE / 2), -1, labels=genes.in.locus[i,]$GENE, cex=0.8)
-  }
-  
-}
 
 
 abline(h=0, col="black", lty=2)
-abline(h=-2, col="black", lty=1)
-abline(v=32534300, col="black", lty=1)
+abline(h=-3.7, col="black", lty=1)
+abline(v=xmax, col="black")
+abline(v=xmin, col="black")
 chr=6
+max.pos = 32807000
+min.pos = 32740000
 recomb <- read.table(paste("genetic_map_chr", chr, ".txt", sep=""), header=T)
 keep.recomb <- subset(recomb, recomb[,1] > min.pos & recomb[,1] < max.pos)
 ystart.recomb <- - offset + (big.range / 8)
 lines(keep.recomb[,1], ystart.recomb + ( ( keep.recomb[,2] / 60 ) * ( 6 * big.range / 8 )), type="l", col="black", lwd=1, xlim=c(min.pos, max.pos), ylim=c(-offset,range), xlab="", ylab="",  axes=F)
-axis(4, at=c( ystart.recomb, ystart.recomb + (big.range / 4), ystart.recomb + ( 2 * big.range / 4),ystart.recomb + ( 3 * big.range / 4)), labels=c("0","20","40", "60"), las=1)
+axis(4, at=c( ystart.recomb, ystart.recomb + (big.range / 4), ystart.recomb + ( 2 * big.range / 4)), labels=c("0","20","40"), las=1)
 mtext("Recombination rate (cM/Mb)", side=4, at=(-offset+big.range/2), line=2)
+
+
+#Add in functional tracks 
+setwd("C:/Users/Courtney/Dropbox/Ober Lab/Fertility/Final Paper eQTL Analysis/HutteriteTTP")
+fairelist <- read.table("FAIRE_region.txt", header=T)
+faire <- subset(fairelist, ( fairelist$Start > xmin & fairelist$Start < xmax ))
+for ( i in 1:dim(faire)[1] ) { 
+  segments(faire[i,]$Start, -2.2, faire[i,]$Stop, -2.2, col="red", lty = 1, lwd =5)
+}
+text(32747000, -2.2, labels="FAIRE", cex= .8, col = "red")
+
+dnalist <- read.table("DNase1_region.txt", header=T)
+dna <- subset(dnalist, ( dnalist$Start > xmin & dnalist$Start < xmax ))
+for ( i in 1:dim(dna)[1] ) { 
+  segments(dna[i,]$Start, -2.7, dna[i,]$Stop, -2.7, col="blue", lty = 1, lwd =5)
+}
+text(32747000, -2.7, labels="DNaseI", cex= .8, col = "blue")
+
+hklist <- read.table("H3K4me3_region.txt", header=T)
+hk <- subset(hklist, ( hklist$Start > xmin & hklist$Start < xmax ))
+for ( i in 1:dim(hk)[1] ) { 
+  segments(hk[i,]$Start, -3.2, hk[i,]$Stop, -3.2, col="black", lty = 1, lwd =5)
+}
+text(32747000, -3.2, labels="H3K4me3", cex= .8, col = "black")
+
+#Make a legend for the LD
+layout(matrix(1:2,ncol=2), width = c(2,1),height = c(1,1))
+plot(1:2, 1:2, pch = 19, cex=2, col = c("#0F0F0F4D" ,"black") )
+
+legend_image <- as.raster(matrix(c("black","#0F0F0F4D" ), ncol=1))
+plot(c(0,2),c(0,1),type = 'n', axes = F,xlab = '', ylab = '', main = 'legend title')
+text(x=1.5, y = seq(.5,1,l=5), labels = seq(.7,1,l=5))
+rasterImage(legend_image, 0, .5, 1,1)
+
+legend_image2 <- as.raster(matrix(c("skyblue" ), ncol=1))
+text(x=1.5, y = seq(-.3,0,l=1), labels = seq(0,l=1))
+text(x=1.5, y = .35, labels = "<0.7")
+rasterImage(legend_image2, 0, .3, 1,.5)
