@@ -119,9 +119,8 @@ manhattan3 <- function(x, chr="CHR", bp="BP", p="P", snp="SNP", r2 = "R2.with.rs
     d.highlight.snp1=d[which(d$R2>.7), ]
     d.highlight.snp2=d[which(d$R2<.7), ]
     with(d.highlight.snp2, points(pos, logp, col="skyblue", pch=16,cex=1, ...))
-    with(d.highlight.snp1, points(pos, logp, col=gscale, pch=16,cex=1.5, ...)) 
-    with(d.highlight.snp, points(pos, logp, col="black", pch=18,cex=4, ...)) 
-       
+    with(d.highlight.snp, points(pos, logp, col="red", pch=18,cex=4, ...)) 
+    with(d.highlight.snp1, points(pos, logp, col=gscale, pch=16,cex=1.5, ...))       
       }
   
   # Highlight snps from a character vector
@@ -212,3 +211,46 @@ legend_image2 <- as.raster(matrix(c("skyblue" ), ncol=1))
 text(x=1.5, y = seq(-.3,0,l=1), labels = seq(0,l=1))
 text(x=1.5, y = .35, labels = "<0.7")
 rasterImage(legend_image2, 0, .3, 1,.5)
+
+#Generate a list of SNPs in FAIRE-seq/DNaseI/H3K4me3 sites
+setwd("C:/Users/Courtney/Dropbox/Ober Lab/Fertility/Final Paper eQTL Analysis/Regional Plot")
+hla = read.table('HLA-F_0.5MbRegion_eQTL_forR.txt', as.is=TRUE, header=TRUE)
+sub = hla[which(hla$R2.with.rs2523393 > .7),]
+
+xmax =29735000  
+xmin = 29670000
+setwd("C:/Users/Courtney/Dropbox/Ober Lab/Fertility/Final Paper eQTL Analysis/HutteriteTTP")
+fairelist <- read.table("FAIRE_region.txt", header=T)
+faire <- subset(fairelist, ( fairelist$Start > xmin & fairelist$Start < xmax ))
+
+overlapfaire =matrix(NA, ncol=ncol(sub))
+colnames(overlapfaire) = colnames(sub)
+for ( i in 1:dim(faire)[1] ) { 
+  temp = sub[which(sub$startBP >= (faire[i,]$Start) & sub$startBP <= (faire[i,]$Stop)),]
+  overlapfaire = rbind(overlapfaire, temp)
+}
+rm(temp)
+
+dnalist <- read.table("DNase1_region.txt", header=T)
+dna <- subset(dnalist, ( dnalist$Start > xmin & dnalist$Start < xmax ))
+overlapdna =matrix(NA, ncol=ncol(sub))
+colnames(overlapdna) = colnames(sub)
+for ( i in 1:dim(dna)[1] ) { 
+  temp = sub[which(sub$startBP >= (dna[i,]$Start) & sub$startBP <= (dna[i,]$Stop)),]
+  overlapdna = rbind(overlapdna, temp)
+}
+rm(temp)
+
+hklist <- read.table("H3K4me3_region.txt", header=T)
+hk <- subset(hklist, ( hklist$Start > xmin & hklist$Start < xmax ))
+overlaphk =matrix(NA, ncol=ncol(sub))
+colnames(overlaphk) = colnames(sub)
+for ( i in 1:dim(hk)[1] ) { 
+  temp = sub[which(sub$startBP >= (hk[i,]$Start) & sub$startBP <= (hk[i,]$Stop)),]
+  overlaphk = rbind(overlaphk, temp)
+}
+rm(temp)
+
+all = rbind(overlapfaire, overlapdna, overlaphk)
+
+write.table(all, 'Functionaloverlap_HLAF.txt', quote=F, sep='\t', row.names=FALSE)

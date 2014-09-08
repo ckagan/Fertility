@@ -118,8 +118,8 @@ manhattan <- function(x, chr="CHR", bp="BP", p="P", snp="SNP", r2 = "R2.with.rs2
     d.highlight.snp1=d[which(d$R2>.7), ]
     d.highlight.snp2=d[which(d$R2<.7), ]
     with(d.highlight.snp2, points(pos, logp, col="skyblue", pch=16,cex=1, ...))
-    with(d.highlight.snp1, points(pos, logp, col=gscale, pch=16,cex=1.5, ...)) 
     with(d.highlight.snp, points(pos, logp, col="red", pch=18,cex=4, ...)) 
+    with(d.highlight.snp1, points(pos, logp, col=gscale, pch=16,cex=1.5, ...))    
     
   }
   
@@ -221,3 +221,23 @@ legend_image2 <- as.raster(matrix(c("skyblue" ), ncol=1))
 text(x=1.5, y = seq(-.3,0,l=1), labels = seq(0,l=1))
 text(x=1.5, y = .35, labels = "<0.7")
 rasterImage(legend_image2, 0, .3, 1,.5)
+
+#Generate a list of SNPs in FAIRE-seq sites
+setwd("C:/Users/Courtney/Dropbox/Ober Lab/Fertility/Final Paper eQTL Analysis/Regional Plot")
+tap2 = read.table('TAP2_0.5MbRegion_eQTL_forR.txt', as.is=TRUE, header=TRUE)
+sub = tap2[which(tap2$R2.with.rs2071473 > .7),]
+
+xmax = 32807000
+xmin = 32740000
+setwd("C:/Users/Courtney/Dropbox/Ober Lab/Fertility/Final Paper eQTL Analysis/HutteriteTTP")
+fairelist <- read.table("FAIRE_region.txt", header=T)
+faire <- subset(fairelist, ( fairelist$Start > xmin & fairelist$Start < xmax ))
+
+overlapfaire =matrix(NA, ncol=ncol(sub))
+colnames(overlapfaire) = colnames(sub)
+#Created a 10bp window around FAIRE-seq site
+for ( i in 1:dim(faire)[1] ) { 
+  temp = sub[which(sub$startBP >= (faire[i,]$Start) & sub$startBP <= (faire[i,]$Stop)),]
+  overlapfaire = rbind(overlapfaire, temp)
+}
+
