@@ -99,7 +99,7 @@ manhattan <- function(x, chr="CHR", bp="BP", p="P", snp="SNP", r2 = "R2.with.rs2
   # Initialize plot
   xmax = 32807000
   xmin = 32740000
-  ymin = -3.7
+  ymin = -4.2
   plot(NULL, xaxt='n', bty='n', xaxs='i', yaxs='i', xlim=c(xmin,xmax), ylim=c(ymin,ymax),
        xlab=xlabel, ylab=expression(-log[10](italic(p))), las=1, pch=20, ...)
   
@@ -162,7 +162,7 @@ for ( i in 1:2 ) {
 
 
 abline(h=0, col="black", lty=2)
-abline(h=-3.7, col="black", lty=1)
+abline(h=-4.2, col="black", lty=1)
 abline(v=xmax, col="black")
 abline(v=xmin, col="black")
 chr=6
@@ -198,6 +198,15 @@ for ( i in 1:dim(hk)[1] ) {
   segments(hk[i,]$Start, -3.2, hk[i,]$Stop, -3.2, col="black", lty = 1, lwd =5)
 }
 text(32747000, -3.2, labels="H3K4me3", cex= .8, col = "black")
+
+
+nr2list <- read.table("NR2F2_region.txt", header=T)
+nr2 <- subset(nr2list, ( nr2list$Start > xmin & nr2list$Start < xmax ))
+for ( i in 1:dim(nr2)[1] ) { 
+  segments(nr2[i,]$Start, -3.7, nr2[i,]$Stop, -3.7, col="orange", lty = 1, lwd =5)
+}
+text(32747000, -3.7, labels="NR2F2", cex= .8, col = "orange")
+
 
 #Make a legend for the LD
 layout(matrix(1:2,ncol=2), width = c(2,1),height = c(1,1))
