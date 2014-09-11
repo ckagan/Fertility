@@ -183,29 +183,36 @@ faire <- subset(fairelist, ( fairelist$Start > xmin & fairelist$Start < xmax ))
 for ( i in 1:dim(faire)[1] ) { 
   segments(faire[i,]$Start, -2.2, faire[i,]$Stop, -2.2, col="red", lty = 1, lwd =5)
 }
-text(32747000, -2.2, labels="FAIRE", cex= .8, col = "red")
+#text(32747000, -2.2, labels="FAIRE", cex= .8, col = "red")
 
 dnalist <- read.table("DNase1_region.txt", header=T)
 dna <- subset(dnalist, ( dnalist$Start > xmin & dnalist$Start < xmax ))
 for ( i in 1:dim(dna)[1] ) { 
   segments(dna[i,]$Start, -2.7, dna[i,]$Stop, -2.7, col="blue", lty = 1, lwd =5)
 }
-text(32747000, -2.7, labels="DNaseI", cex= .8, col = "blue")
+#text(32747000, -2.7, labels="DNaseI", cex= .8, col = "blue")
 
 hklist <- read.table("H3K4me3_region.txt", header=T)
 hk <- subset(hklist, ( hklist$Start > xmin & hklist$Start < xmax ))
 for ( i in 1:dim(hk)[1] ) { 
   segments(hk[i,]$Start, -3.2, hk[i,]$Stop, -3.2, col="black", lty = 1, lwd =5)
 }
-text(32747000, -3.2, labels="H3K4me3", cex= .8, col = "black")
+#text(32747000, -3.2, labels="H3K4me3", cex= .8, col = "black")
 
 
 nr2list <- read.table("NR2F2_region.txt", header=T)
 nr2 <- subset(nr2list, ( nr2list$Start > xmin & nr2list$Start < xmax ))
 for ( i in 1:dim(nr2)[1] ) { 
-  segments(nr2[i,]$Start, -3.7, nr2[i,]$Stop, -3.7, col="orange", lty = 1, lwd =5)
+  segments(nr2[i,]$Start, -3.7, nr2[i,]$Stop, -3.7, col="purple", lty = 1, lwd =5)
 }
-text(32747000, -3.7, labels="NR2F2", cex= .8, col = "orange")
+#text(32747000, -3.7, labels="NR2F2", cex= .8, col = "purple")
+
+##To make key
+plot(1:10,0:-9)
+text(2, -2.2, labels="FAIRE", cex= .8, col = "red")
+text(2, -2.7, labels="DNaseI", cex= .8, col = "blue")
+text(2, -3.2, labels="H3K4me3", cex= .8, col = "black")
+text(2, -3.7, labels="NR2F2", cex= .8, col = "purple")
 
 
 #Make a legend for the LD

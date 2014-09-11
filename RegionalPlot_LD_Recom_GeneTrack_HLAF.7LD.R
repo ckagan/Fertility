@@ -100,7 +100,7 @@ manhattan3 <- function(x, chr="CHR", bp="BP", p="P", snp="SNP", r2 = "R2.with.rs
   # Initialize plot
   xmax =29735000  
   xmin = 29670000
-  ymin = -3.7
+  ymin = -6
   plot(NULL, xaxt='n', bty='n', xaxs='i', yaxs='i', xlim=c(xmin,xmax), ylim=c(ymin,ymax),
        xlab=xlabel, ylab=expression(-log[10](italic(p))), las=1, pch=20, ...)
   
@@ -161,7 +161,7 @@ for ( i in 1:4 ) {
 
 
 abline(h=0, col="black", lty=2)
-abline(h=-3.7, col="black", lty=1)
+abline(h=-6, col="black", lty=1)
 abline(v=xmax, col="black")
 abline(v=xmin, col="black")
 chr=6
@@ -182,23 +182,68 @@ faire <- subset(fairelist, ( fairelist$Start > xmin & fairelist$Start < xmax ))
 for ( i in 1:dim(faire)[1] ) { 
   segments(faire[i,]$Start, -2.2, faire[i,]$Stop, -2.2, col="red", lty = 1, lwd =5)
 }
-text(29730000, -2.2, labels="FAIRE", cex= .8, col = "red")
+#text(29730000, -2.2, labels="FAIRE hESC", cex= .8, col = "red")
 
 dnalist <- read.table("DNase1_region.txt", header=T)
 dna <- subset(dnalist, ( dnalist$Start > xmin & dnalist$Start < xmax ))
 for ( i in 1:dim(dna)[1] ) { 
   segments(dna[i,]$Start, -2.7, dna[i,]$Stop, -2.7, col="blue", lty = 1, lwd =5)
 }
-text(29730000, -2.7, labels="DNaseI", cex= .8, col = "blue")
+#text(29730000, -2.7, labels="DNaseI hESC", cex= .8, col = "blue")
 
 hklist <- read.table("H3K4me3_region.txt", header=T)
 hk <- subset(hklist, ( hklist$Start > xmin & hklist$Start < xmax ))
 for ( i in 1:dim(hk)[1] ) { 
   segments(hk[i,]$Start, -3.2, hk[i,]$Stop, -3.2, col="black", lty = 1, lwd =5)
 }
-text(29730000, -3.2, labels="H3K4me3", cex= .8, col = "black")
+#text(29730000, -3.2, labels="H3K4me3 hESC", cex= .8, col = "black")
 
-#Make a legend for the LD
+setwd("C:/Users/Courtney/Dropbox/Ober Lab/Fertility/Final Paper eQTL Analysis/Regional Plot/")
+enc <- read.table("ENCODE_R.txt", header=T)
+STAT = enc[which(enc$TF == "STAT3"),]
+CTCF = enc[which(enc$TF == "CTCF"),]
+CEBPB = enc[which(enc$TF == "CEBPB"),]
+DECC = enc[which(enc$TF == "DNaseECC"),]
+DIshi = enc[which(enc$TF == "DNaseIshi"),]
+
+for ( i in 1:dim(STAT)[1] ) { 
+  segments(STAT[i,]$Start, -4.7, STAT[i,]$Stop, -4.7, col="purple", lty = 1, lwd =5)
+}
+#text(29680000, -4.7, labels="STAT3 ENCODE", cex= .8, col = "purple")
+
+for ( i in 1:dim(CTCF)[1] ) { 
+  segments(CTCF[i,]$Start, -5.2, CTCF[i,]$Stop, -5.2, col="forestgreen", lty = 1, lwd =5)
+}
+#text(29680000, -5.2, labels="CTCF ENCODE", cex= .8, col = "forestgreen")
+
+for ( i in 1:dim(CEBPB)[1] ) { 
+  segments(CEBPB[i,]$Start, -5.7, CEBPB[i,]$Stop, -5.7, col="grey49", lty = 1, lwd =5)
+}
+#text(29680000, -5.7, labels="CEBPB ENCODE", cex= .8, col = "grey")
+
+for ( i in 1:dim(DECC)[1] ) { 
+  segments(DECC[i,]$Start, -3.7, DECC[i,]$Stop, -3.7, col="lightcoral", lty = 1, lwd =5)
+}
+#text(29680000, -3.7, labels="DNaseI ECC-1", cex= .8, col = "pink")
+
+for ( i in 1:dim(DIshi)[1] ) { 
+  segments(DIshi[i,]$Start, -4.2, DIshi[i,]$Stop, -4.2, col="navy", lty = 1, lwd =5)
+}
+#text(29680000, -4.2, labels="DNaseI Ishikawa", cex= .8, col = "navy")
+
+#To make a key##
+plot(1:10,0:-9)
+text(2, -2.2, labels="FAIRE hESC", cex= .8, col = "red")
+text(2, -2.7, labels="DNaseI hESC", cex= .8, col = "blue")
+text(2, -3.2, labels="H3K4me3 hESC", cex= .8, col = "black")
+text(2, -4.7, labels="STAT3 ENCODE", cex= .8, col = "purple")
+text(2, -5.2, labels="CTCF ENCODE", cex= .8, col = "forestgreen")
+text(2, -5.7, labels="CEBPB ENCODE", cex= .8, col = "grey49")
+text(2, -3.7, labels="DNaseI ECC-1", cex= .8, col = "lightcoral")
+text(2, -4.2, labels="DNaseI Ishikawa", cex= .8, col = "navy")
+
+
+##Make a legend for the LD####
 layout(matrix(1:2,ncol=2), width = c(2,1),height = c(1,1))
 plot(1:2, 1:2, pch = 19, cex=2, col = c("#0F0F0F4D" ,"black") )
 
