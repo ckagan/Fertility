@@ -1,3 +1,5 @@
+setwd("C:/Users/Courtney/Dropbox/Ober Lab/Fertility")
+
 ##Load lumi
 library(lumi)
 
@@ -11,6 +13,19 @@ data.lumi.all = lumiR.batch(alldata, lib.mapping=NULL, convertNuID=F,annotationC
 ### NORMALIZATION: log2 stabilized and quantile normalization ###
 data.norm.all <- lumiExpresso(data.lumi.all, bg.correct=TRUE, bgcorrect.param=list(method='forcePositive'), variance.stabilize=TRUE, varianceStabilize.param = list(method="log2"), normalize=TRUE, normalize.param=list(method="quantile"), QC.evaluation=TRUE, QC.param=list(), verbose=TRUE)
 expr_quant.all <- data.norm.all@assayData$exprs
+
+#Create Supplementary normalization figure 
+samplekey = read.csv('AllColumnNames_forsup.csv')
+rem = c(99,  107,	28,	75,	37,	68,	48,	79,	40,	51,	77,	106,	72,	108,	11,	21,	39,	63,	83,	112,	27,	54,	60,	76)
+data.lumi.clean = data.lumi.all[,-rem]
+clean.key = samplekey[-rem,]
+sampleNames(data.lumi.clean) = clean.key$SampleID
+data.norm.clean = data.norm.all[,-rem]
+sampleNames(data.norm.clean) = clean.key$SampleID
+
+boxplot(data.lumi.clean, main = "Pre-normalization Microarray Intensity", ylab = "Intensity")
+boxplot(data.norm.clean, main = "Post-normalization Microarray Intensity", ylab = "Intensity")
+plot(data.norm.clean, what='sampleRelation')
 
 ###Find the column that is lumi_ID in feature data usually this column
 head(data.norm.all@featureData[[1]])
@@ -194,7 +209,7 @@ for(i in 1:111){
 }
 boxplot.n(replicates,non.replicates, main = "Correlation of Samples", ylab = "Correlation", xlab = "Replicates vs Non-Replicates")
 
-##Remove the after progesterone treated samples to see how thar changes the sample correlation
+##Remove the after progesterone treated samples to see how that changes the sample correlation
 afterprog = c(28,37,40,48,51,59,68,75,77,79,99,106,107)
 clean.bc.resid.int=bc.resid.int[,- afterprog]
 samplenames.clean = read.csv('CleanColNames.csv')
