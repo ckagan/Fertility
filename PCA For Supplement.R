@@ -20,22 +20,25 @@ class.f = as.factor(class)
 prmisc.num = as.numeric(prmisc)
 covars<-list(chip.f,season.f,hypoth.f, race.f, bmi, age, prmisc.num, class.f, batch.f)
 
+samplekey = read.csv('AllColumnNames_forsup.csv')
+rem = c(99,  107,  28,	75,	37,	68,	48,	79,	40,	51,	77,	106,	72,	108,	11,	21,	39,	63,	83,	112,	27,	54,	60,	76)
+clean.key = samplekey[-rem,]
+
 #x.pca = prcomp(na.omit(expr_quant.all), scale = T, center = T)
 x.pca = prcomp(na.omit(bc.resid.int), scale = T, center = T)
 x.pca.sum = summary(x.pca)
 plot(x.pca$rotation[-rem,1], x.pca$rotation[-rem,2], xlab = paste('PC1 (',x.pca.sum$importance[2,1], ')', sep = ''),
      ylab = paste('PC2 (',x.pca.sum$importance[2,2], ')', sep = ''), main = "PC1/2", pch = 20, col = clean.key$Batch) 
 legend(x = "topleft", pch = 20, col = c(1,2), c("Batch 1", "Batch 2"))
-plot(x.pca$rotation[-rem,2], x.pca$rotation[-rem,3], xlab = paste('PC2 (',x.pca.sum$importance[2,2], ')', sep = ''),
-     ylab = paste('PC3 (',x.pca.sum$importance[2,3], ')', sep = ''), main = "PC2/3", pch = 20, col = clean.key$Batch)
+
+plot(x.pca$rotation[-rem,1], x.pca$rotation[-rem,3], xlab = paste('PC1 (',x.pca.sum$importance[2,1], ')', sep = ''),
+     ylab = paste('PC3 (',x.pca.sum$importance[2,3], ')', sep = ''), main = "PC1/3", pch = 20, col = clean.key$Batch)
 legend(x = "topleft", pch = 20, col = c(1,2), c("Batch 1", "Batch 2"))
 
-
-plot(x.pca$rotation[-rem,3], x.pca$rotation[-rem,4], xlab = paste('PC3 (',x.pca.sum$importance[2,3], ')', sep = ''),
-     ylab = paste('PC4 (',x.pca.sum$importance[2,4], ')', sep = ''), main = "PC3/4", pch = 20, col = clean.key$Batch)
+plot(x.pca$rotation[-rem,1], x.pca$rotation[-rem,4], xlab = paste('PC1 (',x.pca.sum$importance[2,1], ')', sep = ''),
+     ylab = paste('PC4 (',x.pca.sum$importance[2,4], ')', sep = ''), main = "PC1/4", pch = 20, col = clean.key$Batch)
 legend(x = "topleft", pch = 20, col = c(1,2), c("Batch 1", "Batch 2"))
 
-plot(x.pca$rotation[,2], x.pca$rotation[,3], xlab = paste('PC2 (',x.pca.sum$importance[2,2], ')', sep = ''),ylab = paste('PC3 (',x.pca.sum$importance[2,3], ')', sep = ''), main = "PC2/3 all data", col = Leg, pch = 20); legend(x = "topright", pch = 20, col = c(1:4), c("LCL origin", "Fib origin", "LCL", "Fib"))
 
 
 lmPCA = function(pca, covars, npcs)
